@@ -22,6 +22,14 @@ All notable changes to this project are documented here. The format follows
   and accesses, support, and limits.
 - `PRIVACY.md` and `SECURITY.md`.
 - `tests/demo.sh`: try the tool on a fake Signal database with invented data.
+- Plugin icon.
+
+### Changed (repository layout)
+
+- The plugin now lives in `plugins/chat-export-for-signal/`, holding only
+  what users install (manifest, icon, README, license, skill). Tests and
+  workflows stay outside it, so installs are smaller and the directory's
+  checks see only the plugin.
 
 ## [0.2.0] - 2026-10-20
 

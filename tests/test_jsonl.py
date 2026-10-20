@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-SCRIPT = Path(__file__).resolve().parent.parent / "skills/signal-export/scripts/signal_jsonl.py"
+SCRIPT = Path(__file__).resolve().parent.parent / "plugins/chat-export-for-signal/skills/signal-export/scripts/signal_jsonl.py"
 spec = importlib.util.spec_from_file_location("signal_jsonl", SCRIPT)
 sj = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(sj)

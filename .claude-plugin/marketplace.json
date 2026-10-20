@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "chat-export-for-signal",
-      "source": "./",
+      "source": "./plugins/chat-export-for-signal",
       "description": "Export your Signal Desktop chats to HTML, Markdown and machine-readable JSON Lines on your own computer. Unofficial."
     }
   ]

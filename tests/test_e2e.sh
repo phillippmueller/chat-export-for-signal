@@ -9,7 +9,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
-SCRIPT="$REPO_ROOT/skills/signal-export/scripts/signal-export.sh"
+SCRIPT="$REPO_ROOT/plugins/chat-export-for-signal/skills/signal-export/scripts/signal-export.sh"
 # The pinned version, read from the script so the fixture uses the same one.
 # shellcheck disable=SC2016  # the $ is literal text in the pattern
 SIGEXPORT_VERSION="$(sed -n 's/^readonly SIGEXPORT_VERSION="\${SIGEXPORT_VERSION:-\(.*\)}"$/\1/p' "$SCRIPT")"

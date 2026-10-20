@@ -9,7 +9,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
-SCRIPT="$REPO_ROOT/skills/signal-export/scripts/signal-export.sh"
+SCRIPT="$REPO_ROOT/plugins/chat-export-for-signal/skills/signal-export/scripts/signal-export.sh"
 
 # Resolve symlinks (macOS temp folders live behind /var -> /private/var), so
 # paths printed by the script compare equal to the ones built here.

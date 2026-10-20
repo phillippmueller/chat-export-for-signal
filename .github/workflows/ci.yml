@@ -25,7 +25,7 @@ jobs:
       - uses: astral-sh/setup-uv@v6
 
       - name: Lint shell scripts
-        run: shellcheck skills/signal-export/scripts/*.sh tests/*.sh
+        run: shellcheck plugins/chat-export-for-signal/skills/signal-export/scripts/*.sh tests/*.sh
 
       # On macOS these run under the system bash 3.2, which is what most Mac
       # users get, so this also checks compatibility with it.
@@ -50,5 +50,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: "22"
-      - name: Validate manifests
-        run: npx -y @anthropic-ai/claude-code plugin validate .
+      - name: Validate marketplace and plugin
+        run: |
+          npx -y @anthropic-ai/claude-code@2.1.304 plugin validate --strict .
+          npx -y @anthropic-ai/claude-code@2.1.304 plugin validate --strict plugins/chat-export-for-signal

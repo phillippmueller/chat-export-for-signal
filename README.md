@@ -68,9 +68,9 @@ cd chat-export-for-signal
 Quit Signal completely (Cmd+Q on a Mac), then:
 
 ```bash
-./skills/signal-export/scripts/signal-export.sh doctor   # checks everything, changes nothing
-./skills/signal-export/scripts/signal-export.sh list     # exact chat names
-./skills/signal-export/scripts/signal-export.sh export --chats "Anna" --single-page
+./plugins/chat-export-for-signal/skills/signal-export/scripts/signal-export.sh doctor   # checks everything, changes nothing
+./plugins/chat-export-for-signal/skills/signal-export/scripts/signal-export.sh list     # exact chat names
+./plugins/chat-export-for-signal/skills/signal-export/scripts/signal-export.sh export --chats "Anna" --single-page
 ```
 
 On the first run macOS asks for access to **"Signal Safe Storage"** in your
@@ -147,7 +147,7 @@ SELECT sender_name, count(*) FROM 'messages.jsonl' GROUP BY 1 ORDER BY 2 DESC;
 ```
 
 Full field reference and loading examples:
-[data format](skills/signal-export/reference/data-format.md).
+[data format](plugins/chat-export-for-signal/skills/signal-export/reference/data-format.md).
 
 ## What this plugin runs and accesses
 
@@ -166,7 +166,7 @@ Everything happens on your computer. In detail:
   under `~/signal-chats/`). It never changes Signal's own data, and it refuses
   to write into this repository.
 - **Runs:** the two scripts in
-  [`skills/signal-export/scripts/`](skills/signal-export/scripts/), and
+  [`plugins/chat-export-for-signal/skills/signal-export/scripts/`](plugins/chat-export-for-signal/skills/signal-export/scripts/), and
   `pgrep` to check whether Signal is running.
 - **Sends:** nothing. There is no telemetry, no analytics and no network
   connection apart from the uv downloads above.
@@ -196,7 +196,7 @@ See [PRIVACY.md](PRIVACY.md) for the privacy statement.
 - Windows is not supported.
 - A new Signal Desktop release can occasionally break the export until the
   underlying tool is updated. See
-  [troubleshooting](skills/signal-export/reference/troubleshooting.md).
+  [troubleshooting](plugins/chat-export-for-signal/skills/signal-export/reference/troubleshooting.md).
 
 ## Support
 
@@ -206,23 +206,27 @@ See [PRIVACY.md](PRIVACY.md) for the privacy statement.
 
 ## How it works
 
-[`signal-export.sh`](skills/signal-export/scripts/signal-export.sh) is a small,
+[`signal-export.sh`](plugins/chat-export-for-signal/skills/signal-export/scripts/signal-export.sh) is a small,
 defensive wrapper around
 [signal-export](https://github.com/carderne/signal-export) by Chris Arderne,
 which does the decryption and the HTML and Markdown export. The wrapper pins a
 tested version, runs it through uv in an isolated environment, checks that
 Signal is closed, and keeps exports out of the repository.
-[`signal_jsonl.py`](skills/signal-export/scripts/signal_jsonl.py) then reads
+[`signal_jsonl.py`](plugins/chat-export-for-signal/skills/signal-export/scripts/signal_jsonl.py) then reads
 the same database through signal-export's library to write the
 machine-readable files.
 
 ```
-.claude-plugin/          plugin and marketplace manifests
-skills/signal-export/
-  SKILL.md               instructions Claude follows
-  scripts/               the two scripts
-  reference/             data format and troubleshooting
-tests/                   tests and the sample-data demo (no real Signal data)
+.claude-plugin/marketplace.json     marketplace manifest (lists the plugin)
+plugins/chat-export-for-signal/     the plugin, exactly what users install
+  .claude-plugin/plugin.json        plugin manifest and icon
+  README.md                         listing text for the plugin directory
+  skills/signal-export/
+    SKILL.md                        instructions Claude follows
+    scripts/                        the two scripts
+    reference/                      data format and troubleshooting
+tests/                              tests and the sample-data demo (no real Signal data)
+.github/workflows/                  CI and release
 ```
 
 ## Development
@@ -231,8 +235,9 @@ tests/                   tests and the sample-data demo (no real Signal data)
 tests/test_cli.sh                                    # script tests (no network)
 python3 -m unittest discover -s tests -p "test_*.py" # converter tests (no network)
 tests/test_e2e.sh                                    # full run on a fake Signal database (uv, network)
-shellcheck skills/signal-export/scripts/*.sh tests/*.sh
-claude plugin validate .                             # check the plugin manifests
+shellcheck plugins/chat-export-for-signal/skills/signal-export/scripts/*.sh tests/*.sh
+claude plugin validate --strict .                    # check the marketplace manifest
+claude plugin validate --strict plugins/chat-export-for-signal  # check the plugin
 ```
 
 Every push runs these checks on macOS and Linux via GitHub Actions.

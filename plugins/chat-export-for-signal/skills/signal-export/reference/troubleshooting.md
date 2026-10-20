@@ -60,21 +60,13 @@ exists only on your phone can't be exported.
 
 ## The export tool broke after a Signal update
 
-Signal sometimes changes its database format. Check
-https://github.com/carderne/signal-export/releases for a newer version and
-try it for one run:
-
-```bash
-SIGEXPORT_VERSION=<newer version> scripts/signal-export.sh list
-```
-
-If it works, update the pinned version at the top of `signal-export.sh`.
+Signal sometimes changes its database format. Check for a new release of this
+plugin first. If there is none yet, see
+https://github.com/carderne/signal-export/releases and report the problem in
+this plugin's issue tracker, so the pinned version can be updated and tested.
 
 ## Any other option
 
 Everything after `--` is passed straight to the underlying `sigexport`
-command. For its full option list:
-
-```bash
-uv tool run --from signal-export sigexport --help
-```
+command. Its full option list is in the
+[signal-export README](https://github.com/carderne/signal-export#usage).

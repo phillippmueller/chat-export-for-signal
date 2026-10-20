@@ -2,7 +2,7 @@ name: Release
 
 # Publishes a GitHub release with the skill packaged as a ZIP, ready to upload
 # under Customize -> Skills. Run it from the Actions tab ("Run workflow"); it
-# creates the tag v<version> from .claude-plugin/plugin.json. Pushing a v* tag
+# creates the tag v<version> from the plugin's plugin.json. Pushing a v* tag
 # also works.
 on:
   workflow_dispatch:
@@ -20,7 +20,7 @@ jobs:
 
       - name: Work out the version
         run: |
-          version="$(python3 -c 'import json; print(json.load(open(".claude-plugin/plugin.json"))["version"])')"
+          version="$(jq -r .version plugins/chat-export-for-signal/.claude-plugin/plugin.json)"
           tag="v$version"
           if [ "$GITHUB_REF_TYPE" = "tag" ] && [ "$GITHUB_REF_NAME" != "$tag" ]; then
             echo "Tag $GITHUB_REF_NAME does not match plugin.json version $version" >&2
@@ -32,7 +32,7 @@ jobs:
       - name: Package the skill
         run: |
           mkdir -p dist
-          (cd skills && zip -r -X ../dist/chat-export-for-signal-skill.zip signal-export -x '*/__pycache__/*' '*.pyc')
+          (cd plugins/chat-export-for-signal/skills && zip -r -X ../../../dist/chat-export-for-signal-skill.zip signal-export -x '*/__pycache__/*' '*.pyc')
           unzip -l dist/chat-export-for-signal-skill.zip
 
       - name: Publish the release

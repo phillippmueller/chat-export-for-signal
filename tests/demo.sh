@@ -12,7 +12,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
-SCRIPT="$REPO_ROOT/skills/signal-export/scripts/signal-export.sh"
+SCRIPT="$REPO_ROOT/plugins/chat-export-for-signal/skills/signal-export/scripts/signal-export.sh"
 OUT="${1:-$HOME/chat-export-demo}"
 
 # shellcheck disable=SC2016  # the $ is literal text in the pattern
