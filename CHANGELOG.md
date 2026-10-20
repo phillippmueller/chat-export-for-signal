@@ -4,6 +4,25 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] - 2026-10-20
+
+### Changed
+
+- Renamed to **Chat Export for Signal (unofficial)**: plugin and marketplace
+  name `chat-export-for-signal`, repository
+  `phillippmueller/chat-export-for-signal`.
+- When the skill's files aren't on the Signal computer (the Claude app),
+  Claude now copies the two bundled scripts there, after asking, instead of
+  cloning the repository. Scripts are always started with `bash`.
+- The data step runs through the same pinned `uv tool run` as the export.
+
+### Added
+
+- Example requests in the skill and README; sections on what the plugin runs
+  and accesses, support, and limits.
+- `PRIVACY.md` and `SECURITY.md`.
+- `tests/demo.sh`: try the tool on a fake Signal database with invented data.
+
 ## [0.2.0] - 2026-10-20
 
 ### Added

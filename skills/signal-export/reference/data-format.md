@@ -49,7 +49,7 @@ To load repeated exports without duplicates, upsert on `message_id`, or on
 ```json
 {
   "schema_version": "1.0",
-  "generator": {"name": "signal-skill", "version": "0.2.0", "url": "..."},
+  "generator": {"name": "chat-export-for-signal", "version": "0.3.0", "url": "..."},
   "created_at": "2026-10-20T09:21:23Z",
   "source": {"app": "Signal Desktop", "exporter": "signal-export",
              "exporter_version": "3.9.3", "platform": "darwin"},

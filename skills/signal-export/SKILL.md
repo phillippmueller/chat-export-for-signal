@@ -3,13 +3,15 @@ name: signal-export
 description: Export Signal Desktop chats on the user's own Mac or Linux computer to readable HTML and Markdown plus machine-readable JSON Lines with stable IDs and a manifest, including attachments, and update earlier exports with newer messages. Use whenever the user wants to export, back up, save, archive or download Signal messages or a Signal conversation, or asks to get a Signal chat into files, a database, Drive or Notion.
 ---
 
-# Signal export
+# Chat Export for Signal
 
-Export Signal Desktop conversations to files with `signal-export.sh` from the
-[signal-skill](https://github.com/phillippmueller/signal-skill) repository. It
-wraps the open-source [signal-export](https://github.com/carderne/signal-export)
-tool and runs it through [uv](https://docs.astral.sh/uv/), which sets up its
-own Python environment on first use.
+Export Signal Desktop conversations to files with the two scripts in this
+skill's `scripts/` folder: `signal-export.sh` and its companion
+`signal_jsonl.py`. They wrap the open-source
+[signal-export](https://github.com/carderne/signal-export) tool and run it
+through [uv](https://docs.astral.sh/uv/), which sets up its own Python
+environment on first use. This is an unofficial tool, not made by or
+affiliated with Signal.
 
 ## Step 0: get a shell on the right computer, with the scripts
 
@@ -17,21 +19,22 @@ The scripts must run **on the computer that has Signal Desktop installed and
 linked**, because they read Signal's local, encrypted database there. Work out
 which case applies, and call the resulting scripts folder `SCRIPTS`:
 
-1. **This skill's folder is on that computer** (Claude Code, or the plugin
-   installed there): `SCRIPTS` is the `scripts/` folder next to this file.
+1. **This skill's folder is on that computer** (for example Claude Code
+   running there): `SCRIPTS` is the `scripts/` folder next to this file.
 2. **You have a shell on that computer, but this skill's files are elsewhere**
-   (for example the Claude app with the user's computer linked): use a copy
-   of the repository on that computer. Check for `~/signal-skill`. If it is
-   missing, ask the user, then run there:
-   `git clone https://github.com/phillippmueller/signal-skill.git ~/signal-skill`.
-   `SCRIPTS` is `~/signal-skill/skills/signal-export/scripts`. If the user
-   asks for the latest version, run `git -C ~/signal-skill pull`.
+   (for example the Claude app with the user's computer linked): ask the
+   user, then copy both files from this skill's `scripts/` folder to
+   `~/.chat-export-for-signal/` on that computer, unchanged, using the file
+   tools you have for that computer. `SCRIPTS` is
+   `~/.chat-export-for-signal`. If the folder already holds an older copy,
+   replace both files so they match this skill's version.
 3. **No shell on that computer** (a cloud-only session): don't attempt
    workarounds. Give the user the commands from "Manual use" below to run in
    their own Terminal, and help them read the output.
 
-The reference files mentioned below sit next to this file in `reference/`,
-or in the repository copy at `~/signal-skill/skills/signal-export/reference/`.
+Always run the script as `bash SCRIPTS/signal-export.sh ...`, so it works even
+when a copy has lost its executable flag. The reference files mentioned below
+sit next to this file in `reference/`.
 
 ## Before running: two things only the user can do
 
@@ -47,15 +50,15 @@ Never try to bypass either step.
 
 ## Procedure
 
-1. **Check readiness.** Run `SCRIPTS/signal-export.sh doctor`. It changes
+1. **Check readiness.** Run `bash SCRIPTS/signal-export.sh doctor`. It changes
    nothing. If uv is missing, ask before installing it (`brew install uv` on a
    Mac). If Signal is running, ask the user to quit it and wait for their
    confirmation.
-2. **Find the exact chat names.** Run `SCRIPTS/signal-export.sh list`.
+2. **Find the exact chat names.** Run `bash SCRIPTS/signal-export.sh list`.
    Match what the user asked for ("my chat with Anna") against the list. If
    several names fit, or none, ask which one rather than guessing.
 3. **Export.** Run
-   `SCRIPTS/signal-export.sh export --chats "Exact Name" --single-page`.
+   `bash SCRIPTS/signal-export.sh export --chats "Exact Name" --single-page`.
    Several chats are comma-separated: `--chats "Anna,Family Group"`. Leave
    out `--chats` only when the user clearly wants every chat.
    - Time range: add `--since 2026-01-01` and/or `--until 2026-03-31`.
@@ -64,7 +67,7 @@ Never try to bypass either step.
    - Without images and files: add `--no-attachments`.
    - Without the machine-readable files: add `--no-data` (rarely needed).
 4. **Update an earlier export.** Run
-   `SCRIPTS/signal-export.sh update --from <earlier export folder> --chats "Exact Name"`.
+   `bash SCRIPTS/signal-export.sh update --from <earlier export folder> --chats "Exact Name"`.
    The earlier export stays unchanged; the merged result goes into a new
    folder. The machine-readable files are rebuilt from scratch rather than
    merged, so they always cover everything Signal Desktop holds.
@@ -86,6 +89,12 @@ reactions linked by ID, and attachment paths. `manifest.json` records counts,
 filters and checksums. The full schema and loading examples (DuckDB, pandas,
 Postgres) are in `reference/data-format.md`; read it before writing code that
 consumes these files.
+
+## Example requests
+
+- "Export my Signal chat with Anna."
+- "Back up the Family Group chat from this year as one page per chat, without the photos."
+- "Update last month's Signal export with the new messages, then load messages.jsonl into DuckDB and show me who wrote the most."
 
 ## Privacy rules
 
@@ -113,8 +122,8 @@ The same script works without Claude, in the user's own Terminal:
 
 ```bash
 brew install uv                       # once, on a Mac
-git clone https://github.com/phillippmueller/signal-skill.git ~/signal-skill
-cd ~/signal-skill/skills/signal-export/scripts
+git clone https://github.com/phillippmueller/chat-export-for-signal.git ~/chat-export-for-signal
+cd ~/chat-export-for-signal/skills/signal-export/scripts
 ./signal-export.sh doctor
 ./signal-export.sh list
 ./signal-export.sh export --chats "Exact Name" --single-page

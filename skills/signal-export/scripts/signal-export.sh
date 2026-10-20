@@ -15,7 +15,7 @@
 
 set -euo pipefail
 
-readonly VERSION="0.2.0"
+readonly VERSION="0.3.0"
 
 # Pinned so a new upstream release cannot silently change behaviour.
 # Override per run, e.g. SIGEXPORT_VERSION=3.9.4 signal-export.sh list
@@ -154,9 +154,9 @@ require_out_outside_repo() {
 # Writes people.jsonl, chats.jsonl, messages.jsonl and manifest.json, using
 # the same pinned signal-export package as a library.
 run_data_step() {
-  uv run --quiet --no-project \
+  uv tool run --quiet \
     --python "$SIGEXPORT_PYTHON" \
-    --with "signal-export==$SIGEXPORT_VERSION" \
+    --from "signal-export==$SIGEXPORT_VERSION" \
     python "$SCRIPT_DIR/signal_jsonl.py" --exporter-version "$SIGEXPORT_VERSION" "$@"
 }
 

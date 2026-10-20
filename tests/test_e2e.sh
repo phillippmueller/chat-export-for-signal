@@ -20,7 +20,7 @@ trap 'rm -rf "$TMP"' EXIT
 unset XDG_CONFIG_HOME SIGNAL_EXPORT_DIR SIGEXPORT_PYTHON
 
 echo "Building fake Signal data (signal-export $SIGEXPORT_VERSION)"
-uv run --quiet --no-project --python 3.12 --with "signal-export==$SIGEXPORT_VERSION" \
+uv tool run --quiet --python 3.12 --from "signal-export==$SIGEXPORT_VERSION" \
   python "$REPO_ROOT/tests/make_fake_signal.py" "$TMP/Signal"
 
 echo "Exporting"

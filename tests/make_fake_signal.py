@@ -5,7 +5,7 @@ in plain text in config.json (Signal's legacy format), so no keychain is
 needed. All people and messages are invented.
 
 Usage (needs the signal-export package, which brings sqlcipher3):
-    uv run --with signal-export==3.9.3 python tests/make_fake_signal.py DIR
+    uv tool run --from signal-export==3.9.3 python tests/make_fake_signal.py DIR
 """
 
 from __future__ import annotations

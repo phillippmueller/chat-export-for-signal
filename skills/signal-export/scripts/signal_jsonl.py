@@ -34,9 +34,9 @@ from typing import Any
 
 SCHEMA_VERSION = "1.0"
 GENERATOR = {
-    "name": "signal-skill",
-    "version": "0.2.0",
-    "url": "https://github.com/phillippmueller/signal-skill",
+    "name": "chat-export-for-signal",
+    "version": "0.3.0",
+    "url": "https://github.com/phillippmueller/chat-export-for-signal",
 }
 
 JsonDict = dict[str, Any]

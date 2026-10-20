@@ -1,15 +1,15 @@
 {
-  "name": "signal-skill",
-  "description": "Signal chat export for Claude, by Philip Mueller",
+  "name": "chat-export-for-signal",
+  "description": "Chat Export for Signal (unofficial), by Philip Mueller",
   "owner": {
     "name": "Philip Mueller",
     "url": "https://github.com/phillippmueller"
   },
   "plugins": [
     {
-      "name": "signal-export",
+      "name": "chat-export-for-signal",
       "source": "./",
-      "description": "Export Signal Desktop chats to HTML, Markdown and JSON on your own computer."
+      "description": "Export your Signal Desktop chats to HTML, Markdown and machine-readable JSON Lines on your own computer. Unofficial."
     }
   ]
 }

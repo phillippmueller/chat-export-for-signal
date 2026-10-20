@@ -32,8 +32,12 @@ jobs:
       - name: Script tests
         run: tests/test_cli.sh
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
       - name: Converter tests
-        run: uv run --no-project --python 3.10 python -m unittest discover -s tests -p "test_*.py" -v
+        run: python -m unittest discover -s tests -p "test_*.py" -v
 
       - name: End-to-end test (fake Signal database)
         run: tests/test_e2e.sh

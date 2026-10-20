@@ -26,13 +26,13 @@ jobs:
       - name: Package the skill
         run: |
           mkdir -p dist
-          (cd skills && zip -r -X ../dist/signal-export-skill.zip signal-export -x '*/__pycache__/*' '*.pyc')
-          unzip -l dist/signal-export-skill.zip
+          (cd skills && zip -r -X ../dist/chat-export-for-signal-skill.zip signal-export -x '*/__pycache__/*' '*.pyc')
+          unzip -l dist/chat-export-for-signal-skill.zip
 
       - name: Publish the release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           notes="$(awk -v v="${GITHUB_REF_NAME#v}" '$0 ~ "^## \\[" v "\\]" {f=1; next} /^## \[/ {f=0} f' CHANGELOG.md)"
-          gh release create "$GITHUB_REF_NAME" dist/signal-export-skill.zip \
+          gh release create "$GITHUB_REF_NAME" dist/chat-export-for-signal-skill.zip \
             --title "$GITHUB_REF_NAME" --notes "${notes:-See CHANGELOG.md}"
