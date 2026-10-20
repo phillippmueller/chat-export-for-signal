@@ -2,6 +2,10 @@
 #
 # signal-export.sh - export Signal Desktop chats to HTML, Markdown and JSON.
 #
+# Besides the readable export, it writes machine-readable files with stable
+# IDs (people.jsonl, chats.jsonl, messages.jsonl, manifest.json) using the
+# companion script signal_jsonl.py.
+#
 # A thin, safe wrapper around signal-export by Chris Arderne
 # (https://github.com/carderne/signal-export, MIT). It runs that tool through
 # uv, which builds and caches an isolated Python environment on first use, so
@@ -11,7 +15,7 @@
 
 set -euo pipefail
 
-readonly VERSION="0.1.0"
+readonly VERSION="0.2.0"
 
 # Pinned so a new upstream release cannot silently change behaviour.
 # Override per run, e.g. SIGEXPORT_VERSION=3.9.4 signal-export.sh list
@@ -58,6 +62,8 @@ Options for export and update:
                       or 2026-01-31T09:00:00+01:00)
   --until DATE        Only messages up to DATE (same format)
   --no-attachments    Skip copying images, voice notes and files
+  --no-data           Skip the machine-readable files (people.jsonl,
+                      chats.jsonl, messages.jsonl, manifest.json)
   --source DIR        Signal data folder, if not in the standard place
   --from DIR          (update only, required) the earlier export to merge
   -- ARGS             Pass any further options straight to sigexport
@@ -145,6 +151,15 @@ require_out_outside_repo() {
   esac
 }
 
+# Writes people.jsonl, chats.jsonl, messages.jsonl and manifest.json, using
+# the same pinned signal-export package as a library.
+run_data_step() {
+  uv run --quiet --no-project \
+    --python "$SIGEXPORT_PYTHON" \
+    --with "signal-export==$SIGEXPORT_VERSION" \
+    python "$SCRIPT_DIR/signal_jsonl.py" --exporter-version "$SIGEXPORT_VERSION" "$@"
+}
+
 run_sigexport() {
   uv tool run --quiet \
     --python "$SIGEXPORT_PYTHON" \
@@ -222,7 +237,7 @@ cmd_export() {
   shift
 
   local chats="" out="" since="" until="" source="" from=""
-  local single_page=0 attachments=1
+  local single_page=0 attachments=1 data=1
   local passthrough=()
 
   while (($#)); do
@@ -241,6 +256,7 @@ cmd_export() {
         ;;
       --single-page) single_page=1; shift ;;
       --no-attachments) attachments=0; shift ;;
+      --no-data) data=0; shift ;;
       --) shift; passthrough=("$@"); break ;;
       *) die "Unknown option for $mode: $1 (see: signal-export.sh help)" ;;
     esac
@@ -280,11 +296,36 @@ cmd_export() {
   [[ -n "$from" ]] && info "Merging in earlier export: $from (it stays unchanged)"
   run_sigexport ${args[@]+"${args[@]}"} "$out"
 
-  if [[ -d "$out" ]]; then
-    info ""
-    info "Done. Your export is in: $out"
-    info "Open the .html file of a chat in your browser to read it."
-    info "Reminder: these files are unencrypted private messages."
+  if [[ ! -d "$out" ]]; then
+    info "Nothing was exported (no matching chats or messages)."
+    return 0
+  fi
+
+  local data_failed=0
+  if ((data)); then
+    local data_args=(--out "$out")
+    [[ -n "$chats" ]] && data_args+=(--chats "$chats")
+    [[ -n "$since" ]] && data_args+=(--since "$since")
+    [[ -n "$until" ]] && data_args+=(--until "$until")
+    [[ -n "$source" ]] && data_args+=(--source "$source")
+    ((attachments)) || data_args+=(--no-attachments)
+    # Keep the data files in step with the export's upstream filters.
+    local arg
+    for arg in ${passthrough[@]+"${passthrough[@]}"}; do
+      case "$arg" in
+        --include-empty | --include-disappearing) data_args+=("$arg") ;;
+      esac
+    done
+    info "Writing machine-readable data (messages.jsonl, manifest.json, ...)"
+    run_data_step "${data_args[@]}" || data_failed=1
+  fi
+
+  info ""
+  info "Done. Your export is in: $out"
+  info "Open the .html file of a chat in your browser to read it."
+  info "Reminder: these files are unencrypted private messages."
+  if ((data_failed)); then
+    die "The readable export is complete, but writing the machine-readable files failed (see above)."
   fi
 }
 

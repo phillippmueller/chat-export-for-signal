@@ -1,7 +1,7 @@
 {
   "name": "signal-export",
-  "version": "0.1.0",
-  "description": "Export Signal Desktop chats to readable HTML, Markdown and JSON files on your own computer, and update earlier exports with newer messages.",
+  "version": "0.2.0",
+  "description": "Export Signal Desktop chats on your own computer to readable HTML and Markdown, plus machine-readable JSON Lines with stable IDs and a manifest. Update earlier exports with newer messages.",
   "author": {
     "name": "Philip Mueller",
     "url": "https://github.com/phillippmueller"
@@ -9,5 +9,5 @@
   "homepage": "https://github.com/phillippmueller/signal-skill",
   "repository": "https://github.com/phillippmueller/signal-skill",
   "license": "MIT",
-  "keywords": ["signal", "export", "backup", "chat", "messages", "archive"]
+  "keywords": ["signal", "export", "backup", "chat", "messages", "archive", "jsonl", "data"]
 }

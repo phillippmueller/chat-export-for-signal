@@ -1,6 +1,6 @@
 ---
 name: signal-export
-description: Export Signal Desktop chats on the user's own Mac or Linux computer to readable HTML, Markdown and JSON files, including attachments, and update earlier exports with newer messages. Use whenever the user wants to export, back up, save, archive or download Signal messages or a Signal conversation, or asks to get a Signal chat into files, a database, Drive or Notion.
+description: Export Signal Desktop chats on the user's own Mac or Linux computer to readable HTML and Markdown plus machine-readable JSON Lines with stable IDs and a manifest, including attachments, and update earlier exports with newer messages. Use whenever the user wants to export, back up, save, archive or download Signal messages or a Signal conversation, or asks to get a Signal chat into files, a database, Drive or Notion.
 ---
 
 # Signal export
@@ -53,14 +53,28 @@ Run every command from this skill's folder, or use the script's full path.
    - Own folder: add `--out ~/signal-chats/anna`. The folder must not exist
      yet.
    - Without images and files: add `--no-attachments`.
+   - Without the machine-readable files: add `--no-data` (rarely needed).
 4. **Update an earlier export.** Run
    `scripts/signal-export.sh update --from <earlier export folder> --chats "Exact Name"`.
    The earlier export stays unchanged; the merged result goes into a new
-   folder. JSON output is not merged in update mode; HTML and Markdown are.
-5. **Report back.** Say where the export is (the script prints the folder)
-   and that each chat folder holds an `.html` file to open in a browser, a
-   Markdown file, JSON data and the attachments. Don't paste message content
-   into the conversation unless the user asks for it.
+   folder. The machine-readable files are rebuilt from scratch rather than
+   merged, so they always cover everything Signal Desktop holds.
+5. **Report back.** Say where the export is (the script prints the folder).
+   Each chat folder holds an `.html` file to open in a browser, a Markdown
+   file and the attachments. The export folder itself holds the
+   machine-readable data: `messages.jsonl`, `chats.jsonl`, `people.jsonl` and
+   `manifest.json`. Don't paste message content into the conversation unless
+   the user asks for it.
+
+## Machine-readable data
+
+Use the export folder's `.jsonl` files, not the per-chat `data.json`, for
+anything a program reads: databases, analysis, AI pipelines. They have stable
+IDs that link people, chats and messages, UTC timestamps, replies and
+reactions linked by ID, and attachment paths. `manifest.json` records counts,
+filters and checksums. The full schema and loading examples (DuckDB, pandas,
+Postgres) are in `reference/data-format.md`; read it before writing code that
+consumes these files.
 
 By default every export goes into a new, dated folder under `~/signal-chats/`.
 
@@ -95,4 +109,5 @@ scripts/signal-export.sh export --chats "Exact Name" --single-page
 scripts/signal-export.sh help
 ```
 
-For errors, read `reference/troubleshooting.md`.
+For errors, read `reference/troubleshooting.md`. For the data format, read
+`reference/data-format.md`.

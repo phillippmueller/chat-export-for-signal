@@ -4,7 +4,10 @@ Export your Signal Desktop chats to readable files, either yourself from the
 Terminal or by asking Claude.
 
 - **HTML** you open in a browser, formatted like the chat, with images inline
-- **Markdown** and **JSON** for notes, archives and further processing
+- **Markdown** for notes and archives
+- **Machine-readable data**: `messages.jsonl`, `chats.jsonl` and
+  `people.jsonl` with stable IDs, plus a `manifest.json` with counts and
+  checksums, ready for a database, pandas or an AI pipeline
 - **Attachments** (images, voice notes, files) copied alongside
 - **Updates**: merge newer messages into an earlier export without touching it
 
@@ -35,8 +38,19 @@ keychain. Click **Allow**; the tool needs this key to decrypt your local
 database. The first run also takes a bit longer while uv sets up Python and the
 export tool; later runs reuse them.
 
-Your export lands in a new dated folder under `~/signal-chats/`. Open the
-`.html` file of a chat in your browser.
+Your export lands in a new dated folder under `~/signal-chats/`:
+
+```
+export-2026-10-20_141500/
+├── manifest.json        what's inside: versions, filters, counts, checksums
+├── messages.jsonl       one message per line, with stable IDs
+├── chats.jsonl          one chat per line
+├── people.jsonl         one person per line
+└── AnnaMuster/
+    ├── index.html       open this in your browser
+    ├── chat.md
+    └── media/           attachments
+```
 
 Tip: add an alias to your `~/.zshrc` to run it from anywhere:
 
@@ -63,8 +77,32 @@ Useful options for `export` and `update`:
 --until 2026-03-31            # only messages up to this date
 --out ~/signal-chats/anna     # your own output folder (must not exist yet)
 --no-attachments              # skip images and files
+--no-data                     # skip the .jsonl files and manifest.json
 -- --include-empty            # anything after -- goes straight to sigexport
 ```
+
+## Machine-readable data
+
+The `.jsonl` files hold one JSON object per line and map one-to-one onto
+database tables, linked by IDs:
+
+```json
+{"message_id": "…", "signal_key": "<sender>:<ms>", "chat_id": "…", "sender_id": "<uuid>",
+ "sender_name": "Anna Muster", "direction": "incoming", "sent_at": "2026-01-01T00:01:00.000Z",
+ "text": "Hi! Are we still on for Friday?", "reply_to": null, "reactions": [], "attachments": [], …}
+```
+
+People are identified by their Signal service ID, which stays the same across
+devices and name changes, and messages carry both a local ID for upserting
+repeated exports and a cross-device key. Query them directly, for example with
+DuckDB:
+
+```sql
+SELECT sender_name, count(*) FROM 'messages.jsonl' GROUP BY 1 ORDER BY 2 DESC;
+```
+
+Full field reference and loading examples:
+[data format](skills/signal-export/reference/data-format.md).
 
 ## Use it with Claude
 
@@ -108,23 +146,28 @@ Exports contain **your and other people's private messages, unencrypted**.
 [`signal-export.sh`](skills/signal-export/scripts/signal-export.sh) is a small,
 defensive wrapper around
 [signal-export](https://github.com/carderne/signal-export) by Chris Arderne,
-which does the decryption and conversion. The wrapper pins a tested version,
-runs it through uv in an isolated environment, checks that Signal is closed,
-and keeps exports out of the repository.
+which does the decryption and the HTML and Markdown export. The wrapper pins a
+tested version, runs it through uv in an isolated environment, checks that
+Signal is closed, and keeps exports out of the repository.
+[`signal_jsonl.py`](skills/signal-export/scripts/signal_jsonl.py) then reads
+the same database through signal-export's library to write the
+machine-readable files.
 
 ```
 .claude-plugin/          plugin and marketplace manifests
 skills/signal-export/
   SKILL.md               instructions Claude follows
-  scripts/               the executable script
-  reference/             troubleshooting
+  scripts/               the executable scripts
+  reference/             data format and troubleshooting
 tests/                   tests (no real Signal data needed)
 ```
 
 ## Development
 
 ```bash
-tests/test_cli.sh                                    # run the tests
+tests/test_cli.sh                                    # script tests (no network)
+python3 -m unittest discover -s tests -p "test_*.py" # converter tests (no network)
+tests/test_e2e.sh                                    # full run on a fake Signal database (uv, network)
 shellcheck skills/signal-export/scripts/*.sh tests/*.sh
 claude plugin validate .                             # check the plugin manifests
 ```

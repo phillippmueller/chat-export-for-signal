@@ -25,11 +25,20 @@ export HOME="$TMP/home"
 export UV_LOG="$TMP/uv.log"
 mkdir -p "$FAKE_BIN" "$HOME"
 
-# Fake uv: logs its arguments one per line, prints a chat list for
-# --list-chats, and creates the destination folder like sigexport would.
+# Fake uv. For the sigexport step it logs its arguments one per line to
+# $UV_LOG, prints a chat list for --list-chats and creates the destination
+# folder. For the data step (signal_jsonl.py) it logs to $UV_LOG.data, and
+# fails when FAKE_DATA_FAIL is set.
 cat >"$FAKE_BIN/uv" <<'EOF'
 #!/usr/bin/env bash
 if [[ "${1:-}" == "--version" ]]; then echo "uv 0.0.0-fake"; exit 0; fi
+for arg in "$@"; do
+  if [[ "$arg" == */signal_jsonl.py ]]; then
+    printf '%s\n' "$@" >"$UV_LOG.data"
+    [[ -n "${FAKE_DATA_FAIL:-}" ]] && exit 3
+    exit 0
+  fi
+done
 printf '%s\n' "$@" >"$UV_LOG"
 for arg in "$@"; do
   if [[ "$arg" == "--list-chats" ]]; then echo "Anna | Family Group | Note to Self"; exit 0; fi
@@ -75,6 +84,7 @@ expect() {
   local name="$1" want="$2" needle="$3"
   shift 4
   local out code=0
+  rm -f "$UV_LOG" "$UV_LOG.data"
   out="$("$@" 2>&1)" || code=$?
   if [[ "$want" == "0" && $code -ne 0 ]] || [[ "$want" == "nonzero" && $code -eq 0 ]]; then
     fail "$name (exit $code)" "$out"
@@ -85,9 +95,19 @@ expect() {
   fi
 }
 
-# log_has <name> <argument the fake uv must have received>
+# log_has <name> <argument the fake uv must have received> [log file]
 log_has() {
-  if grep -qxF -- "$2" "$UV_LOG"; then pass "$1"; else fail "$1" "$(cat "$UV_LOG")"; fi
+  local log="${3:-$UV_LOG}"
+  if [[ -f "$log" ]] && grep -qxF -- "$2" "$log"; then
+    pass "$1"
+  else
+    fail "$1" "$(cat "$log" 2>/dev/null || echo "(no call logged)")"
+  fi
+}
+
+# log_lacks <name> <log file>: the step must not have run
+log_lacks() {
+  if [[ ! -f "$2" ]]; then pass "$1"; else fail "$1" "$(cat "$2")"; fi
 }
 
 echo "signal-export.sh tests"
@@ -119,9 +139,27 @@ else
   fail "export defaults to a dated folder in ~/signal-chats" "$(tail -n 1 "$UV_LOG")"
 fi
 
+log_has "data step runs after export" "--out" "$UV_LOG.data"
+log_has "data step gets the same chats" "Anna,Family Group" "$UV_LOG.data"
+log_has "data step gets the same start date" "2026-01-01" "$UV_LOG.data"
+log_has "data step knows attachments were skipped" "--no-attachments" "$UV_LOG.data"
+log_has "data step pins signal-export version" "signal-export==3.9.3" "$UV_LOG.data"
+
 expect "export passthrough after --" 0 "Done." -- \
   "$SCRIPT" export --out "$HOME/out-pass" -- --include-empty
 log_has "passthrough reaches sigexport" "--include-empty"
+log_has "passthrough filter reaches data step" "--include-empty" "$UV_LOG.data"
+
+expect "export --no-data" 0 "Done." -- "$SCRIPT" export --out "$HOME/out-nodata" --no-data
+log_lacks "--no-data skips the data step" "$UV_LOG.data"
+
+expect "failed data step is reported" nonzero "machine-readable files failed" -- \
+  env FAKE_DATA_FAIL=1 "$SCRIPT" export --out "$HOME/out-datafail"
+if [[ -d "$HOME/out-datafail" ]]; then
+  pass "readable export is kept when the data step fails"
+else
+  fail "readable export is kept when the data step fails"
+fi
 
 expect "export refuses existing folder" nonzero "already exists" -- \
   "$SCRIPT" export --out "$HOME/out-pass"
