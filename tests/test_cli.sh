@@ -11,8 +11,14 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 SCRIPT="$REPO_ROOT/skills/signal-export/scripts/signal-export.sh"
 
-TMP="$(mktemp -d)"
+# Resolve symlinks (macOS temp folders live behind /var -> /private/var), so
+# paths printed by the script compare equal to the ones built here.
+TMP="$(cd "$(mktemp -d)" && pwd -P)"
 trap 'rm -rf "$TMP"' EXIT
+
+# Isolate the tests from the caller's environment; CI runners, for example,
+# set XDG_CONFIG_HOME, which would move the expected Signal data folder.
+unset XDG_CONFIG_HOME SIGNAL_EXPORT_DIR SIGEXPORT_VERSION SIGEXPORT_PYTHON
 
 FAKE_BIN="$TMP/bin"
 export HOME="$TMP/home"
@@ -50,7 +56,19 @@ passed=0
 failed=0
 
 pass() { passed=$((passed + 1)); printf '  ok    %s\n' "$1"; }
-fail() { failed=$((failed + 1)); printf '  FAIL  %s\n' "$1"; [[ -n "${2:-}" ]] && printf '%s\n' "$2" | sed 's/^/        /'; return 0; }
+fail() {
+  failed=$((failed + 1))
+  printf '  FAIL  %s\n' "$1"
+  [[ -n "${2:-}" ]] && printf '%s\n' "$2" | sed 's/^/        /'
+  # On GitHub Actions, also raise an annotation so failures are visible on
+  # the run page without opening the log.
+  if [[ -n "${GITHUB_ACTIONS:-}" ]]; then
+    local detail="${2:-}"
+    detail="${detail//$'\n'/%0A}"
+    printf '::error title=Test failed: %s::%s\n' "$1" "$detail"
+  fi
+  return 0
+}
 
 # expect <name> <expected exit: 0|nonzero> <text that output must contain> -- cmd...
 expect() {
