@@ -17,6 +17,11 @@ All notable changes to this project are documented here. The format follows
 - Attachments are read from Signal's separate attachment table (newer Signal
   versions), so they appear in the data files too.
 - `--no-data` option to skip the data files.
+- The skill now also works when its files aren't on the Signal computer (for
+  example from the Claude app): Claude clones this repository there first,
+  after asking.
+- Release workflow: a version tag publishes the skill as a ZIP for upload
+  under Customize -> Skills. README covers installing from the Claude app.
 - End-to-end test against a fake, encrypted Signal database, and unit tests
   for the converter; both run in CI.
 

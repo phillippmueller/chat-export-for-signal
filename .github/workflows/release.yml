@@ -1,0 +1,38 @@
+name: Release
+
+# Pushing a version tag (v0.2.0, ...) publishes a GitHub release with the
+# skill packaged as a ZIP, ready to upload under Customize -> Skills.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check that the tag matches the plugin version
+        run: |
+          version="$(python3 -c 'import json; print(json.load(open(".claude-plugin/plugin.json"))["version"])')"
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match plugin.json version $version" >&2
+            exit 1
+          fi
+
+      - name: Package the skill
+        run: |
+          mkdir -p dist
+          (cd skills && zip -r -X ../dist/signal-export-skill.zip signal-export -x '*/__pycache__/*' '*.pyc')
+          unzip -l dist/signal-export-skill.zip
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          notes="$(awk -v v="${GITHUB_REF_NAME#v}" '$0 ~ "^## \\[" v "\\]" {f=1; next} /^## \[/ {f=0} f' CHANGELOG.md)"
+          gh release create "$GITHUB_REF_NAME" dist/signal-export-skill.zip \
+            --title "$GITHUB_REF_NAME" --notes "${notes:-See CHANGELOG.md}"

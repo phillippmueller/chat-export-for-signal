@@ -108,17 +108,30 @@ Full field reference and loading examples:
 
 The repository is also a Claude plugin with a skill, so Claude can run the
 export for you when you say something like *"export my Signal chat with
-Anna"*. Claude needs to run on the same computer as Signal, for example in
-Claude Code.
+Anna"*. Claude needs a shell on the computer where Signal runs: Claude Code
+there, or the Claude desktop app with that computer linked.
 
-In Claude Code:
+**In the Claude app** (paid plans): open **Customize → Plugins**, click
+**Add → Add marketplace → Add from a repository**, enter
+`phillippmueller/signal-skill`, and install **signal-export**.
+
+**As a single skill** (any plan with code execution on): download
+`signal-export-skill.zip` from the
+[latest release](https://github.com/phillippmueller/signal-skill/releases/latest),
+then open **Customize → Skills → + → Create skill → Upload a skill** and
+choose the ZIP.
+
+**In Claude Code:**
 
 ```bash
 claude plugin marketplace add phillippmueller/signal-skill
 claude plugin install signal-export@signal-skill
 ```
 
-Claude still asks you to quit Signal and to click Allow on the keychain prompt;
+When the skill's files aren't on the computer with Signal (for example when
+you use it from the Claude app), Claude asks before cloning this repository to
+`~/signal-skill` on that computer and runs the scripts from there. Either way,
+Claude asks you to quit Signal and to click Allow on the keychain prompt;
 those steps stay with you on purpose.
 
 ## Privacy
