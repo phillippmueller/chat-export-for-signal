@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Lint and test (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: |
+          if [ "$RUNNER_OS" = "macOS" ]; then brew install shellcheck; else sudo apt-get install -y shellcheck; fi
+
+      - name: Lint shell scripts
+        run: shellcheck skills/signal-export/scripts/*.sh tests/*.sh
+
+      # On macOS the tests run under the system bash 3.2, which is what most
+      # Mac users get, so this also checks compatibility with it.
+      - name: Run tests
+        run: tests/test_cli.sh
+
+  validate-plugin:
+    name: Validate Claude plugin
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate manifests
+        run: npx -y @anthropic-ai/claude-code plugin validate .

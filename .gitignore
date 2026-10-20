@@ -1,0 +1,13 @@
+# Signal exports are private, unencrypted messages: never commit them.
+signal-chats/
+export-*/
+exports/
+*.sqlite
+*.sqlite-*
+config.json
+
+# OS and editor clutter
+.DS_Store
+*.swp
+.vscode/
+.idea/
