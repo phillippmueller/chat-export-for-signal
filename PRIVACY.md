@@ -35,7 +35,7 @@ agree to their messages being stored or processed elsewhere.
 
 ## Contact
 
-Questions about this statement: SUPPORT_EMAIL_PLACEHOLDER, or open an issue at
+Questions about this statement: [philip.mueller.bueckeburg@gmail.com](mailto:philip.mueller.bueckeburg@gmail.com), or open an issue at
 https://github.com/phillippmueller/chat-export-for-signal/issues.
 
 Last updated: 20 October 2026

@@ -9,7 +9,7 @@ report it privately rather than in a public issue:
 - **Preferred:** use GitHub's private
   [Report a vulnerability](https://github.com/phillippmueller/chat-export-for-signal/security/advisories/new)
   form.
-- **Or email:** SUPPORT_EMAIL_PLACEHOLDER with "Security" in the subject.
+- **Or email:** [philip.mueller.bueckeburg@gmail.com](mailto:philip.mueller.bueckeburg@gmail.com) with "Security" in the subject.
 
 Please include what you did, what happened, and the output of
 `signal-export.sh version`. You'll get a first reply within 7 days.

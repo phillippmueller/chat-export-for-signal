@@ -201,7 +201,7 @@ See [PRIVACY.md](PRIVACY.md) for the privacy statement.
 ## Support
 
 - **Questions and bugs:** [open an issue](https://github.com/phillippmueller/chat-export-for-signal/issues)
-- **Email:** SUPPORT_EMAIL_PLACEHOLDER
+- **Email:** [philip.mueller.bueckeburg@gmail.com](mailto:philip.mueller.bueckeburg@gmail.com)
 - **Security problems:** please report them privately, see [SECURITY.md](SECURITY.md)
 
 ## How it works
