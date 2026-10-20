@@ -8,10 +8,9 @@ Activity Monitor, search for "Signal" and quit any leftover processes.
 
 ## "uv is not installed"
 
-Install uv once:
-
-- macOS: `brew install uv`
-- Any system: see https://docs.astral.sh/uv/getting-started/installation/
+Install uv once, following its official guide:
+https://docs.astral.sh/uv/getting-started/installation/ (on a Mac, Homebrew
+users can install the `uv` package).
 
 The first export then takes a little longer while uv downloads Python and the
 export tool. Later runs reuse that environment.

@@ -51,8 +51,9 @@ Never try to bypass either step.
 ## Procedure
 
 1. **Check readiness.** Run `bash SCRIPTS/signal-export.sh doctor`. It changes
-   nothing. If uv is missing, ask before installing it (`brew install uv` on a
-   Mac). If Signal is running, ask the user to quit it and wait for their
+   nothing. If uv is missing, stop and ask the user to install it themselves,
+   following https://docs.astral.sh/uv/getting-started/installation/ . Don't
+   install it for them. If Signal is running, ask the user to quit it and wait for their
    confirmation.
 2. **Find the exact chat names.** Run `bash SCRIPTS/signal-export.sh list`.
    Match what the user asked for ("my chat with Anna") against the list. If
@@ -118,17 +119,10 @@ consumes these files.
 
 ## Manual use
 
-The same script works without Claude, in the user's own Terminal:
-
-```bash
-brew install uv                       # once, on a Mac
-git clone https://github.com/phillippmueller/chat-export-for-signal.git ~/chat-export-for-signal
-cd ~/chat-export-for-signal/skills/signal-export/scripts
-./signal-export.sh doctor
-./signal-export.sh list
-./signal-export.sh export --chats "Exact Name" --single-page
-./signal-export.sh help
-```
+Without a shell on the Signal computer, point the user to the "Use it without
+Claude" section of https://github.com/phillippmueller/chat-export-for-signal
+and help them read the output they paste back. The script's commands are the
+same ones used above: `doctor`, `list`, `export`, `update` and `help`.
 
 For errors, read `reference/troubleshooting.md`. For the data format, read
 `reference/data-format.md`.
